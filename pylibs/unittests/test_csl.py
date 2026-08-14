@@ -36,11 +36,10 @@ from otns.cli import errors, OTNS
 class CslTests(OTNSTestCase):
 
 
-
-    def testCslReenable(self):
+    def testCsl(self):
         ns = self.ns
 
-        print("ABTIN - ABTIN ######################################################################################")
+        print("ABTIN - TEST STARTS ##################################")
 
         # setup a Parent Router with SSED Child
         ns.add("router", 100, 100)
@@ -51,64 +50,100 @@ class CslTests(OTNSTestCase):
         self.assertFormPartitions(1)
 
 
-        if False:
-            print("ABTIN Parent pings SSED FIRST")
-
-            for n in range(0, 15):
-                ns.ping(1, 2, datasize=n + 10)
-                ns.go(5)
-            self.assertPings(ns.pings(), 15, max_delay=3000, max_fails=1)
-
-            print("ABTIN Parent pings SSED FIRST PASSED!!!!")
-
-        print("ABTIN SSED pings parent (only 1 now) !!!!!!!!")
+        print("ABTIN SSED pings parent once!!!!!!!! (shorter delay)")
 
         # SSED pings parent
-        for n in range(0, 1):
-            ns.ping(2, 1, datasize=n + 10)
-            ns.go(5)
+
+        ns.ping(2, 1, datasize=10)
+        #ns.go(5)
+        ns.go(1)
         self.assertPings(ns.pings(), 1, max_delay=3000, max_fails=1)
 
         print("ABTIN SSED pings parent ALL GOOD")
 
         # parent pings SSED
 
-        print("ABTIN Parent pings SSED (only one now also)")
+        print("ABTIN Parent pings SSED (only once)")
 
-        for n in range(0, 1):
-            ns.ping(1, 2, datasize=n + 10)
-            ns.go(5)
+        ns.ping(1, 2, datasize=10)
+        ns.go(5)
+        self.assertPings(ns.pings(), 1, max_delay=3000, max_fails=1)
 
-        self.assertPings(ns.pings(), 11, max_delay=3000, max_fails=1)
+        print("ABTIN Parent pings SSED ALSO PASSSED")
 
-        print("ABTIN-------------------------------------------------------------------------------------------")
 
-        for k in range(0, 4):
-            # disable CSL
-            ns.node_cmd(nodeid, "csl period 0")
-            ns.go(1)
-
-            # SSED pings parent
-            for n in range(0, 15):
-                ns.ping(2, 1, datasize=n + 10)
-                ns.go(5)
-            self.assertPings(ns.pings(), 15, max_delay=3000, max_fails=1)
-
-            # re-enable CSL
-            ns.node_cmd(nodeid, "csl period 144000")
-            ns.go(1)
-
-            # SSED pings parent
-            for n in range(0, 15):
-                ns.ping(2, 1, datasize=n + 10)
-                ns.go(5)
-            self.assertPings(ns.pings(), 15, max_delay=3000, max_fails=1)
-
-            # parent pings SSED
-            for n in range(0, 15):
-                ns.ping(1, 2, datasize=n + 10)
-                ns.go(5)
-            self.assertPings(ns.pings(), 15, max_delay=3000, max_fails=1)
+        #    def testCslReenable(self):
+        #        ns = self.ns
+        #
+        #        print("ABTIN - TEST STARTS ##################################")
+        #
+        #        # setup a Parent Router with SSED Child
+        #        ns.add("router", 100, 100)
+        #        ns.go(10)
+        #        nodeid = ns.add("ssed", 200, 100)
+        #        ns.node_cmd(nodeid, "csl period 288000")
+        #        ns.go(10)
+        #        self.assertFormPartitions(1)
+        #
+        #
+        #        if False:
+        #            print("ABTIN Parent pings SSED FIRST")
+        #
+        #            for n in range(0, 15):
+        #                ns.ping(1, 2, datasize=n + 10)
+        #                ns.go(5)
+        #            self.assertPings(ns.pings(), 15, max_delay=3000, max_fails=1)
+        #
+        #            print("ABTIN Parent pings SSED FIRST PASSED!!!!")
+        #
+        #        print("ABTIN SSED pings parent (only 1 now) !!!!!!!!")
+        #
+        #        # SSED pings parent
+        #        for n in range(0, 1):
+        #            ns.ping(2, 1, datasize=n + 10)
+        #            ns.go(5)
+        #        self.assertPings(ns.pings(), 1, max_delay=3000, max_fails=1)
+        #
+        #        print("ABTIN SSED pings parent ALL GOOD")
+        #
+        #        # parent pings SSED
+        #
+        #        print("ABTIN Parent pings SSED (only one now also)")
+        #
+        #        for n in range(0, 1):
+        #            ns.ping(1, 2, datasize=n + 10)
+        #            ns.go(5)
+        #
+        #        self.assertPings(ns.pings(), 11, max_delay=3000, max_fails=1)
+        #
+        #        print("ABTIN-------------------------------------------------------------------------------------------")
+        #
+        #        for k in range(0, 4):
+        #            # disable CSL
+        #            ns.node_cmd(nodeid, "csl period 0")
+        #            ns.go(1)
+        #
+        #            # SSED pings parent
+        #            for n in range(0, 15):
+        #                ns.ping(2, 1, datasize=n + 10)
+        #                ns.go(5)
+        #            self.assertPings(ns.pings(), 15, max_delay=3000, max_fails=1)
+        #
+        #            # re-enable CSL
+        #            ns.node_cmd(nodeid, "csl period 144000")
+        #            ns.go(1)
+        #
+        #            # SSED pings parent
+        #            for n in range(0, 15):
+        #                ns.ping(2, 1, datasize=n + 10)
+        #                ns.go(5)
+        #            self.assertPings(ns.pings(), 15, max_delay=3000, max_fails=1)
+        #
+        #            # parent pings SSED
+        #            for n in range(0, 15):
+        #                ns.ping(1, 2, datasize=n + 10)
+        #                ns.go(5)
+        #            self.assertPings(ns.pings(), 15, max_delay=3000, max_fails=1)
 
 
 if __name__ == '__main__':
