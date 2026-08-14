@@ -357,6 +357,9 @@ otError otPlatRadioSleep(otInstance *aInstance)
 
     otError error = OT_ERROR_INVALID_STATE;
 
+    fprintf(stderr, "[%lu us] Node %u: RadioSleep (state=%d, subState=%d)\n",
+            (unsigned long)otPlatTimeGet(), gNodeId, sState, sSubState);
+
     if (sSubState == RFSIM_RADIO_SUBSTATE_RX_FRAME_ONGOING || sSubState == RFSIM_RADIO_SUBSTATE_RX_ACK_TX_ONGOING ||
         sSubState == RFSIM_RADIO_SUBSTATE_RX_AIFS_WAIT)
     {
@@ -380,6 +383,9 @@ otError otPlatRadioReceive(otInstance *aInstance, uint8_t aChannel)
     assert(aInstance != NULL);
 
     otError error = OT_ERROR_INVALID_STATE;
+
+    fprintf(stderr, "[%lu us] Node %u: RadioReceive (ch=%u, state=%d, subState=%d)\n",
+            (unsigned long)otPlatTimeGet(), gNodeId, aChannel, sState, sSubState);
 
     if (sState != OT_RADIO_STATE_DISABLED)
     {
@@ -406,6 +412,9 @@ otError otPlatRadioTransmit(otInstance *aInstance, otRadioFrame *aFrame)
     assert(aFrame != NULL);
 
     otError error = OT_ERROR_INVALID_STATE;
+
+    fprintf(stderr, "[%lu us] Node %u: otPlatRadioTransmit (ch=%u, state=%d, subState=%d)\n",
+            (unsigned long)otPlatTimeGet(), gNodeId, aFrame->mChannel, sState, sSubState);
 
     if (sState == OT_RADIO_STATE_RECEIVE)
     {
@@ -525,6 +534,8 @@ exit:
 
 void radioSendMessage(otInstance *aInstance)
 {
+    fprintf(stderr, "[%lu us] Node %u: radioSendMessage (ch=%u, dur=%u)\n",
+            (unsigned long)otPlatTimeGet(), gNodeId, sOngoingOperationChannel, (unsigned int)sLastTxEventData.mDuration);
 #if OPENTHREAD_CONFIG_MAC_HEADER_IE_SUPPORT && OPENTHREAD_CONFIG_TIME_SYNC_ENABLE
     if (sTransmitFrame.mInfo.mTxInfo.mIeInfo->mTimeIeOffset != 0)
     {
@@ -1199,6 +1210,10 @@ void platformRadioRxStart(otInstance *aInstance, struct RadioCommEventData *aRxP
 {
     OT_UNUSED_VARIABLE(aInstance);
 
+    fprintf(stderr, "[%lu us] Node %u: RxStart (ch=%u, state=%d, subState=%d, matchChan=%d, opChan=%d)\n",
+            (unsigned long)otPlatTimeGet(), gNodeId, aRxParams->mChannel, sState, sSubState,
+            (sOngoingOperationChannel == aRxParams->mChannel), sOngoingOperationChannel);
+
     otEXPECT(sOngoingOperationChannel == aRxParams->mChannel);                       // must be on my listening channel.
     otEXPECT(sState == OT_RADIO_STATE_RECEIVE || sState == OT_RADIO_STATE_TRANSMIT); // and in valid states.
     otEXPECT(sSubState == RFSIM_RADIO_SUBSTATE_READY || sSubState == RFSIM_RADIO_SUBSTATE_IFS_WAIT ||
@@ -1242,6 +1257,10 @@ void platformRadioRxDone(otInstance                *aInstance,
     bool isAck           = otMacFrameIsAck(&sReceiveFrame);
     bool isAckRequested  = otMacFrameIsAckRequested(&sReceiveFrame);
     bool isAddressedToMe = otMacFrameDoesAddrMatch(&sReceiveFrame, sPanId, sShortAddress, &sExtAddress);
+
+    fprintf(stderr, "[%lu us] Node %u: RxDone (len=%u, err=%d, toMe=%d, ackReq=%d, isAck=%d, subState=%d)\n",
+            (unsigned long)otPlatTimeGet(), gNodeId, aBufLength, aRxParams->mError,
+            isAddressedToMe, isAckRequested, isAck, sSubState);
 
     if (sSubState == RFSIM_RADIO_SUBSTATE_RX_FRAME_ONGOING && isAckRequested && !isAck && isAddressedToMe &&
         aRxParams->mError == OT_ERROR_NONE)
